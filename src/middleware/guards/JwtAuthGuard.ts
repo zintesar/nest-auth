@@ -28,6 +28,44 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 }
 
 @Injectable()
+export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
+  private context
+  canActivate(context: ExecutionContext) {
+    // Add your custom authentication logic here
+    // for example, call super.logIn(request) to establish a session.
+    this.context = context
+    return super.canActivate(context);
+  }
+  handleRequest(err: any, user: any, info: any, context: any, status: any) {
+
+    // console.log('user ',user)
+    if (!user || info instanceof JsonWebTokenError) {
+
+      const req = this.context.switchToHttp().getRequest();
+      throw new UnauthorizedException(UNAUTHORIZED(null, req))
+    }
+
+    return super.handleRequest(err, user, info, context, status);
+  }
+}
+
+@Injectable()
+export class JwtResetPinGuard extends AuthGuard('jwt-reset-pin') {
+  private context
+  canActivate(context: ExecutionContext) {
+    this.context = context
+    return super.canActivate(context);
+  }
+  handleRequest(err: any, user: any, info: any, context: any, status: any) {
+    if (!user || info instanceof JsonWebTokenError) {
+      const req = this.context.switchToHttp().getRequest();
+      throw new UnauthorizedException(UNAUTHORIZED(null, req))
+    }
+    return super.handleRequest(err, user, info, context, status);
+  }
+}
+
+@Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {
   private context;
   canActivate(context: ExecutionContext) {
